@@ -1,7 +1,5 @@
 import os
 
-url_segundo_github = "https://github.com"
-
 email = "heitorpontessilva3@gmail.com"
 
 msg_commit = ""
@@ -23,8 +21,3 @@ comando = "git push"
 os.system(comando)
 
 print("\nEnvio realizado com sucesso...")
-
-os.system(f"git remote add backup {url_segundo_github}")
-os.system("git push backup")
-
-print("\nEnvio realizado com sucesso para ambos os repositórios!")
