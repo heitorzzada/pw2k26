@@ -1,9 +1,17 @@
-from django.views.generic import TemplateView
-from django.shortcuts import redirect
+from django.views.generic import (
+    TemplateView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+    DetailView,
+    ListView
+)
+
+from django.urls import reverse_lazy
 from .models import Agendamento
 from django.contrib import messages
-from datetime import time, datetime, timedelta
-from django.contrib import messages
+from datetime import datetime, timedelta
+
 
 class Index(TemplateView):
     template_name = "website/inicio.html"
@@ -17,13 +25,47 @@ class Contato(TemplateView):
     template_name = "website/contato.html"
 
 
-class Agendar(TemplateView):
-    template_name = "website/agendar.html"
+class Barbeiro(TemplateView):
+    template_name = "website/barbeiro.html"
+
+
+class VerAgendamentos(TemplateView):
+
+    template_name = "website/ver_agendamentos.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        context['agendamentos'] = (
+            Agendamento.objects.all().order_by('data')
+        )
+
+        return context
+
+
+class AgendamentoCreate(CreateView):
+    model = Agendamento
+    fields = ['nome_cliente', 'servico', 'data']
+    template_name = 'website/agendar.html'
+    success_url = reverse_lazy('listar_agendamento')
+
+    def form_valid(self, form):
+
+        data_final = form.cleaned_data['data']
+
+        if Agendamento.objects.filter(data=data_final).exists():
+            form.add_error('data', 'Horário já ocupado ❌')
+            return self.form_invalid(form)
+
+        messages.success(self.request, "Agendado com sucesso ✅")
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         horarios = []
+
         inicio = datetime.strptime("09:00", "%H:%M")
         fim = datetime.strptime("20:00", "%H:%M")
 
@@ -32,31 +74,25 @@ class Agendar(TemplateView):
             inicio += timedelta(minutes=30)
 
         context['horarios'] = horarios
+
         return context
-    def post(self, request, *args, **kwargs):
-        nome = request.POST.get('nome')
-        servico = request.POST.get('servico')
-        data = request.POST.get('data')
-        hora = request.POST.get('hora')
 
-        data_hora = f"{data} {hora}"
+class AgendamentoUpdate(UpdateView):
+    model = Agendamento
+    fields = ['nome_ciente', 'servico', 'data']
+    template_name = 'website/agendar.html'
+    success_url = reverse_lazy('listar_agendamento')
 
-        data_final = datetime.strptime(data_hora, "%Y-%m-%d %H:%M")
+class AgendamentoDelete(DeleteView):
+    model = Agendamento
+    template_name = 'website/excluir.html'
+    success_url = reverse_lazy('listar_agendamento')
 
-        if Agendamento.objects.filter(data=data_final).exists():
-            from django.contrib import messages
-            messages.error(request, "Horário já ocupado ❌")
-            return redirect('agendar')
+class AgendamentoDetail(DetailView):
+    model = Agendamento
+    template_name = 'website/detalhar.html'
 
-        Agendamento.objects.create(
-            nome=nome,
-            servico=servico,
-            data=data_final
-    )
-
-        messages.success(request, "Agendado com sucesso ✅")
-        return redirect('agendar')
-
-
-class Barbeiro(TemplateView):
-    template_name = "website/barbeiro.html"
+class AgendamentoList(ListView):
+    model = Agendamento
+    template_name = 'website/listar.html'
+    context_object_name = 'agendamentos'
