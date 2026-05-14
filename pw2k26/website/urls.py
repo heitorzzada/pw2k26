@@ -5,7 +5,7 @@ urlpatterns = [
 
     path('', Index.as_view(), name='inicio'),
 
-    path('servico/', Servico.as_view(), name='servico'),
+    path('servico/', ServicoTemplateView.as_view(), name='servico'),
 
     path('contato/', Contato.as_view(), name='contato'),
 

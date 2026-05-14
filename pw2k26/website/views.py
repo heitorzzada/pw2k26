@@ -8,7 +8,7 @@ from django.views.generic import (
 )
 
 from django.urls import reverse_lazy
-from .models import Agendamento
+from .models import Agendamento, Horario, Servico
 from django.contrib import messages
 from datetime import datetime, timedelta
 
@@ -16,18 +16,14 @@ from datetime import datetime, timedelta
 class Index(TemplateView):
     template_name = "website/inicio.html"
 
-
-class Servico(TemplateView):
-    template_name = "website/servico.html"
-
+class ServicoTemplateView(TemplateView):
+    template_name = "website/servico.html"  
 
 class Contato(TemplateView):
     template_name = "website/contato.html"
 
-
 class Barbeiro(TemplateView):
     template_name = "website/barbeiro.html"
-
 
 class VerAgendamentos(TemplateView):
 
@@ -63,18 +59,8 @@ class AgendamentoCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        horarios = []
-
-        inicio = datetime.strptime("09:00", "%H:%M")
-        fim = datetime.strptime("20:00", "%H:%M")
-
-        while inicio <= fim:
-            horarios.append(inicio.strftime("%H:%M"))
-            inicio += timedelta(minutes=30)
-
-        context['horarios'] = horarios
-
+        context['horarios'] = Horario.objects.all()
+        context['servicos'] = Servico.objects.all()
         return context
 
 class AgendamentoUpdate(UpdateView):

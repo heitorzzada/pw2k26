@@ -31,14 +31,21 @@
         {% csrf_token %}
 
         <label>Seu nome:</label><br>
-        <input type="text" name="nome" required><br><br>
+        <input type="text" name="nome_cliente" required><br><br>
 
         <label>Serviço:</label><br>
+        
         <select name="servico">
-            <option>Corte</option>
-            <option>Barba</option>
-            <option>Corte + Barba</option>
-        </select><br><br>
+
+             {% for servico in servicos %}
+
+            <option value="{{ servico.id }}">
+                {{ servico.nome }}
+            </option>
+
+    {% endfor %}
+
+    </select>
 
         <label>Data:</label><br>
 <input type="date" name="data" required><br><br>
@@ -48,8 +55,13 @@
 <div style="display:flex; flex-wrap:wrap; gap:10px;">
     {% for h in horarios %}
         <label style="background:#1e293b; padding:8px 12px; border-radius:8px; cursor:pointer;">
-            <input type="radio" name="hora" value="{{ h }}" required>
-            {{ h }}
+            <input
+                type="radio"
+                name="horario"
+                value="{{ h.id }}"
+                required
+            >
+{{ h.inicio }} às {{ h.fim }}
         </label>
     {% endfor %}
 </div>
